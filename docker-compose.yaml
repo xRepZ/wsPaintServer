@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  # minio-server:
+  #   image: minio/minio
+  #   restart: always
+  #   volumes:
+  #     - /tmp/minio:/data
+  #   ports:
+  #     - "9000:9000"
+  #     - "46203:46203"
+  #   environment:
+  #     MINIO_ACCESS_KEY: 123123123
+  #     MINIO_SECRET_KEY: 123123123
+  #   command: server /data --console-address :46203
+  # db:
+  #   image: postgres:14.1-alpine
+  #   ports:
+  #     - 5432:5432
+  #   volumes:
+  #     - ./pg_data:/var/lib/postgresql/data
+  #   environment:
+  #     - POSTGRES_DB=todolist
+  #     - POSTGRES_USER=dakz
+  #     - POSTGRES_PASSWORD=123321
+  db:
+    image: mysql:latest
+    container_name: drawing
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: drawing
+      MYSQL_ROOT_PASSWORD: 123321
+      MYSQL_USER: dakz
+      MYSQL_PASSWORD: 123321
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
