@@ -53,13 +53,13 @@ export const roomService = {
             { code, canvas }
         )
         console.log("len", canvas.length)
-        if (canvas.length !== 2) { // 2?
-            wsService.sendNewRoom(code, {figure: fig.pop()})
-        } else {
+        if (canvas === '[]') {
             console.log("clear")
             wsService.clearRoom(code, {length: canvas.length})
         }
-        
+        else {
+            wsService.sendNewCanvas(code, {figure: fig.pop()})
+        }
     },
     getCanvas: async (code: string) => {
         const canvas = await db.selectOne(

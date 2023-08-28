@@ -6,7 +6,6 @@ const wsByRoom: Record<string, Set<WebSocket>> = {}
 
 //const mapWsToUserId = new Map<WebSocket, number | string>()
 
-const mapWsToRoom = new Map<WebSocket, string>()
 //const wsByUser = new Map<number | string, WebSocket[] | undefined>()
 
 const sendToAllUserConnections = (room: string, type: string, payload: unknown) => {
@@ -17,9 +16,21 @@ const sendToAllUserConnections = (room: string, type: string, payload: unknown) 
         }))
     }
 }
+const sendToAllExceptMe = (room: string, myWs: WebSocket, type: string, payload: unknown) => {
+    for (const ws of wsByRoom[room] || []) {
+        if (ws === myWs) continue
+        ws.send(JSON.stringify({
+            type,
+            payload
+        }))
+    }
+}
+
+let id = 0
 
 export const wsService = {
     onConnection: (ws: WebSocket) => {
+        let room: string
         console.log('connected')
         const pingInterval = setInterval(() => {
             console.log('ping sent')
@@ -46,7 +57,7 @@ export const wsService = {
                 console.log("init")
 
                 console.log(payload)
-                const room = payload
+                room = payload
                 //const room = JSON.parse(Buffer.from(payload.split('.')[0], 'base64').toString())
                 //const id = user.id as number
                 if (!wsByRoom[room]) {
@@ -63,23 +74,22 @@ export const wsService = {
                 //     client.send(JSON.stringify({ type: "server log" }))
                 // })
 
-              
-
-                mapWsToRoom.set(ws, room)
-        
-
+                ws.send(JSON.stringify({
+                    type: 'connected',
+                    payload: ++id
+                }))
             } else if (type === 'update_room') {
                 //console.log("move")
                 //console.log(payload)
                 //console.log(payload)
 
                 sendToAllUserConnections(payload.room, type, payload)
+            } else if (type === 'drawing_figure') {
+                sendToAllExceptMe(room, ws, type, payload)
             }
             // ws.send(event.data.toString().toUpperCase())
         }
         ws.onclose = (event) => {
-            const room = mapWsToRoom.get(ws) as string
-            mapWsToRoom.delete(ws)
             wsByRoom[room].delete(ws)
             console.log('closed')
             clearInterval(pingInterval)
@@ -88,7 +98,7 @@ export const wsService = {
             console.log('error:', event.error)
         }
     },
-    sendNewRoom: (room: string, payload: unknown) => {
+    sendNewCanvas: (room: string, payload: unknown) => {
         sendToAllUserConnections(room, 'update_room', payload)
     },
     clearRoom: (room: string, payload: unknown) => {
