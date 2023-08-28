@@ -23,4 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 upload.ps1
-src/env.ts
+#src/env.ts
