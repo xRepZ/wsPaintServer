@@ -44,22 +44,16 @@ export const wsService = {
                 ws.close()
             }, 30000)
         })
-        // ws.on('ping', (message) => {
-        //     console.log('got ping')
-        //     ws.send('pong ' + message.toString())
-        // })
+
         ws.onmessage = (event) => {
-            // console.log(event.type)
-            // console.log("send")
-            // console.log(event)
+
             const { type, payload } = JSON.parse(event.data.toString())
             if (type === 'init') {
                 console.log("init")
 
                 console.log(payload)
                 room = payload
-                //const room = JSON.parse(Buffer.from(payload.split('.')[0], 'base64').toString())
-                //const id = user.id as number
+
                 if (!wsByRoom[room]) {
                     wsByRoom[room] = new Set()
                 }
@@ -68,26 +62,22 @@ export const wsService = {
                 if (!arr.has(ws)) {
                     arr.add(ws)
                 }
-                
+
                 console.log('clients: ', arr.size)
-                // arr.forEach(client => {
-                //     client.send(JSON.stringify({ type: "server log" }))
-                // })
 
                 ws.send(JSON.stringify({
                     type: 'connected',
                     payload: ++id
                 }))
             } else if (type === 'update_room') {
-                //console.log("move")
-                //console.log(payload)
-                //console.log(payload)
-
                 sendToAllUserConnections(payload.room, type, payload)
             } else if (type === 'drawing_figure') {
                 sendToAllExceptMe(room, ws, type, payload)
+            } else if (type === 'saved_canvas') {
+                console.log("send")
+                sendToAllExceptMe(room, ws, type, payload)
             }
-            // ws.send(event.data.toString().toUpperCase())
+            
         }
         ws.onclose = (event) => {
             wsByRoom[room].delete(ws)
@@ -101,25 +91,8 @@ export const wsService = {
     sendNewCanvas: (room: string, payload: unknown) => {
         sendToAllUserConnections(room, 'update_room', payload)
     },
+
     clearRoom: (room: string, payload: unknown) => {
         sendToAllUserConnections(room, 'clear_room', payload)
     }
-    // deleteTodo: (userId: number, payload: unknown) => {
-    //     sendToAllUserConnections(userId, 'delete_todo', payload)
-    // },
-    // deleteDone: (userId: number, payload: unknown) => {
-    //     sendToAllUserConnections(userId, 'delete_done', payload)
-    // },
-    // deleteAll: (userId: number, payload: unknown) => {
-    //     sendToAllUserConnections(userId, 'delete_all', payload)
-    // },
-    // editTodo: (userId: number, payload: unknown) => {
-    //     sendToAllUserConnections(userId, 'edit', payload)
-    // },
-    // moveToDone: (userId: number, payload: unknown) => {
-    //     sendToAllUserConnections(userId, 'move_to_done', payload)
-    // },
-    // moveToActual: (userId: number, payload: unknown) => {
-    //     sendToAllUserConnections(userId, 'move_to_actual', payload)
-    // },
 }
