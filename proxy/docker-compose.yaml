@@ -24,7 +24,6 @@ services:
       - vhost.d:/etc/nginx/vhost.d:z
       - html:/usr/share/nginx/html:z
       - /var/run/docker.sock:/tmp/docker.sock:z,ro
-      - ./proxy/upload.conf:/etc/nginx/conf.d/uploadsize.conf
       
   letsencrypt-companion:
     image: 'nginxproxy/acme-companion'
