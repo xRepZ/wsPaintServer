@@ -18,12 +18,7 @@ const queryFormat = (query: string, params?: Record<string, unknown>) => {
     })
 }
 
-/*
-query = 'insert into users (login, password) values (:login, :password)'
-params = { login: 'test', password: 'asdasd' }
 
-return "insert into users (login, password) values ('test', 'asdasd')"
-*/
 
 type MysqlResult = mysql.RowDataPacket[]
     | mysql.OkPacket
@@ -83,10 +78,3 @@ export const db = {
 }
 
 process.on('exit', closePool)
-/*
-update <table>
-   set <filld_name> = <field_value>
-      ,<filld_name> = <field_value>
-      ,<filld_name> = <field_value>
- where <condition>
-*/
